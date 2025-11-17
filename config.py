@@ -208,7 +208,7 @@ Let's keep this community awesome for everyone! ✨
         "QUIZ_SYSTEM": True,
     }
     
-    # Anime recommendations
+    # Anime recommendations (FIXED - removed + from numbers)
     ANIME_RECOMMENDATIONS = [
         {
             "title": "Attack on Titan",
@@ -234,28 +234,28 @@ Let's keep this community awesome for everyone! ✨
         {
             "title": "My Hero Academia",
             "genre": "Action, Superhero, School",
-            "episodes": 113+,
+            "episodes": 113,
             "rating": "8.4/10",
             "description": "A boy born without superpowers in a superhuman society dreams of becoming a hero."
         },
         {
             "title": "Demon Slayer",
             "genre": "Action, Fantasy, Supernatural",
-            "episodes": 55+,
+            "episodes": 55,
             "rating": "8.7/10",
             "description": "A young boy becomes a demon slayer to save his sister and avenge his family."
         },
         {
             "title": "One Punch Man",
             "genre": "Action, Comedy, Superhero",
-            "episodes": 24+,
+            "episodes": 24,
             "rating": "8.7/10",
             "description": "A hero who can defeat any opponent with a single punch grows bored from a lack of challenge."
         },
         {
             "title": "Jujutsu Kaisen",
             "genre": "Action, Supernatural, Horror",
-            "episodes": 24+,
+            "episodes": 24,
             "rating": "8.6/10",
             "description": "A boy eats a cursed finger and becomes the vessel for a powerful curse."
         },
@@ -265,6 +265,20 @@ Let's keep this community awesome for everyone! ✨
             "episodes": 148,
             "rating": "9.0/10",
             "description": "A young boy aspires to become a Hunter to find his missing father."
+        },
+        {
+            "title": "Steins;Gate",
+            "genre": "Sci-Fi, Thriller, Romance",
+            "episodes": 24,
+            "rating": "9.1/10",
+            "description": "A group of friends discover time travel and face its dangerous consequences."
+        },
+        {
+            "title": "Cowboy Bebop",
+            "genre": "Action, Sci-Fi, Noir",
+            "episodes": 26,
+            "rating": "8.9/10",
+            "description": "Bounty hunters travel through space in their ship, the Bebop."
         }
     ]
     
@@ -290,6 +304,20 @@ Let's keep this community awesome for everyone! ✨
             "image": "https://i.imgur.com/mikasa_image.jpg",
             "description": "One of the last remaining Asians and a skilled soldier.",
             "personality": "Loyal, Strong, Protective"
+        },
+        {
+            "name": "Asuna Yuuki",
+            "series": "Sword Art Online",
+            "image": "https://i.imgur.com/asuna_image.jpg",
+            "description": "The Sub-Commander of the Knights of the Blood.",
+            "personality": "Kind, Strong, Determined"
+        },
+        {
+            "name": "Nezuko Kamado",
+            "series": "Demon Slayer",
+            "image": "https://i.imgur.com/nezuko_image.jpg",
+            "description": "Tanjiro's younger sister turned into a demon.",
+            "personality": "Gentle, Protective, Caring"
         }
     ]
     
@@ -315,6 +343,20 @@ Let's keep this community awesome for everyone! ✨
             "image": "https://i.imgur.com/kakashi_image.jpg",
             "description": "The Copy Ninja with a mysterious past and powerful abilities.",
             "personality": "Calm, Intelligent, Mysterious"
+        },
+        {
+            "name": "Lelouch vi Britannia",
+            "series": "Code Geass",
+            "image": "https://i.imgur.com/lelouch_image.jpg",
+            "description": "A prince who gains the power of Geass and leads a rebellion.",
+            "personality": "Intelligent, Strategic, Charismatic"
+        },
+        {
+            "name": "Spike Spiegel",
+            "series": "Cowboy Bebop",
+            "image": "https://i.imgur.com/spike_image.jpg",
+            "description": "A bounty hunter with a mysterious past and martial arts skills.",
+            "personality": "Cool, Laid-back, Skilled"
         }
     ]
 
