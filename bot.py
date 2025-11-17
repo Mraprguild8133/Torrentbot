@@ -19,8 +19,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot Configuration
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-ADMIN_IDS = [123456789]  # Replace with your Telegram ID
+BOT_TOKEN = "8326289617:AAGl1Lu0r3-HAgfVQHNTR--n-3X1C5v_51k"
+ADMIN_IDS = [6300568870]  # Replace with your Telegram ID
 
 # Aria2 Configuration
 ARIA2_HOST = "localhost"
