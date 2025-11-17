@@ -1,5 +1,5 @@
-import os
-from typing import List
+ # import os
+from typing import List, Dict
 
 class Config:
     """Configuration class for Anime Guardian Bot"""
@@ -16,27 +16,92 @@ class Config:
     WARNING_EXPIRE_HOURS = 24
     ANTI_SPAM_COOLDOWN = 2  # seconds
     
+    # Welcome message settings
+    WELCOME_IMAGE_URLS = [
+        "https://i.imgur.com/8SqjK2v.png",
+        "https://i.imgur.com/9X8qjK2.png",
+        "https://i.imgur.com/7WqjK2v.png",
+    ]
+    ENABLE_WELCOME_IMAGE = True
+    WELCOME_IMAGE_CAPTION = True
+    
     # Anime-themed messages
     ANIME_QUOTES = [
         "Believe in the me that believes in you! - Kamina (Gurren Lagann)",
         "People's dreams never end! - Marshall D. Teach (One Piece)",
         "If you don't like your destiny, don't accept it. - Naruto Uzumaki",
         "Hard work is worthless for those that don't believe in themselves. - Naruto Uzumaki",
-        "It's not the face that makes someone a monster, it's the choices they make. - Naruto Uzumaki",
-        "I am the hope of the universe. - Son Goku (Dragon Ball Z)",
-        "It's not the world that's imperfect. It's we who are imperfect. - Lelouch vi Britannia",
-        "The world isn't perfect. But it's there for us, doing the best it can. - Roy Mustang"
     ]
     
     ANIME_WELCOME_MESSAGES = [
         "Welcome {user}! You've entered the world of anime! 🌸",
         "Konichiwa {user}! Ready for some anime adventures? ✨",
         "Welcome {user}! May your stay be as exciting as a shonen battle! ⚔️",
-        "Yōkoso {user}! The anime realm welcomes you! 🎌",
-        "Welcome {user}! Let the anime journey begin! 🎮",
-        "Irasshaimase {user}! The anime dojo welcomes you! 🥋",
-        "Welcome {user}! Your anime adventure starts now! 🌟"
     ]
+    
+    # New Feature: Anime Character Database
+    ANIME_CHARACTERS = {
+        "naruto": {
+            "name": "Naruto Uzumaki",
+            "series": "Naruto",
+            "image": "https://i.imgur.com/naruto_image.jpg",
+            "quote": "I'm not gonna run away, I never go back on my word!",
+            "description": "A shinobi of Konohagakure's Uzumaki clan."
+        },
+        "goku": {
+            "name": "Son Goku",
+            "series": "Dragon Ball",
+            "image": "https://i.imgur.com/goku_image.jpg",
+            "quote": "I am the hope of the universe.",
+            "description": "Saiyan raised on Earth and the main protagonist."
+        },
+        "luffy": {
+            "name": "Monkey D. Luffy",
+            "series": "One Piece",
+            "image": "https://i.imgur.com/luffy_image.jpg",
+            "quote": "I'm gonna be King of the Pirates!",
+            "description": "Captain of the Straw Hat Pirates."
+        }
+    }
+    
+    # New Feature: Anime Poll Questions
+    ANIME_POLL_QUESTIONS = [
+        "Which anime has the best character development?",
+        "Who is the strongest anime character?",
+        "Best anime soundtrack?",
+        "Most emotional anime scene?",
+        "Favorite anime genre?",
+        "Best anime villain?"
+    ]
+    
+    # New Feature: Level System
+    LEVEL_CONFIG = {
+        "ENABLE_LEVEL_SYSTEM": True,
+        "XP_PER_MESSAGE": 5,
+        "XP_COOLDOWN": 60,  # seconds
+        "LEVEL_UP_MESSAGES": [
+            "🎉 {user} leveled up to level {level}! Sugoi!",
+            "🌟 {user} reached level {level}! Amazing growth!",
+            "🏆 Level up! {user} is now level {level}!",
+        ]
+    }
+    
+    # New Feature: Auto-Delete Settings
+    AUTO_DELETE = {
+        "ENABLE_AUTO_DELETE": True,
+        "COMMAND_DELETE_DELAY": 30,  # seconds
+        "WELCOME_DELETE_DELAY": 300,  # seconds
+        "RULES_DELETE_DELAY": 600,  # seconds
+    }
+    
+    # New Feature: Custom Commands
+    CUSTOM_COMMANDS = {
+        "waifu": "Shows random waifu image and info",
+        "husbando": "Shows random husbando image and info",
+        "animequiz": "Starts an anime quiz",
+        "recommend": "Recommends random anime",
+        "schedule": "Shows anime airing schedule"
+    }
     
     # Bot responses
     RESPONSES = {
@@ -45,23 +110,9 @@ class Config:
         "user_not_found": "❌ Could not find the mentioned user!",
         "command_failed": "❌ Failed to execute command: {error}",
         "welcome_bot": "Arigatou for adding me! I'll protect this anime community! 🌸\nUse /help to see my commands!",
-        "spam_warning": "{user} please don't spam! 🚫"
+        "spam_warning": "{user} please don't spam! 🚫",
+        "image_send_failed": "Failed to send image, sending text instead."
     }
-    
-    # Rules
-    GROUP_RULES = """
-📜 *Anime Community Rules* 📜
-
-1. 🤝 *Be Respectful* - Treat everyone with respect
-2. 🎭 *Stay On Topic* - Keep discussions anime-related
-3. 🚫 *No Spam* - Don't flood the chat
-4. 📛 *No NSFW* - Keep content safe for work
-5. 🔗 *No Unsolicited Links* - Ask before posting links
-6. 👥 *No Harassment* - Bullying won't be tolerated
-7. 🎨 *Credit Artists* - Always credit fan art creators
-
-*Violations may result in warnings, mutes, or bans.*
-    """
     
     # Logging configuration
     LOG_LEVEL = "INFO"
