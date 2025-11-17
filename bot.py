@@ -9,29 +9,12 @@ from telegram.ext import (
     ContextTypes, CallbackContext, ChatMemberHandler
 )
 
-# Bot Configuration
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-ADMIN_IDS = []  # Add admin user IDs here
-ANIME_QUOTES = [
-    "Believe in the me that believes in you! - Kamina (Gurren Lagann)",
-    "People's dreams never end! - Marshall D. Teach (One Piece)",
-    "If you don't like your destiny, don't accept it. - Naruto Uzumaki",
-    "Hard work is worthless for those that don't believe in themselves. - Naruto Uzumaki",
-    "It's not the face that makes someone a monster, it's the choices they make. - Naruto Uzumaki"
-]
-
-ANIME_WELCOME_MESSAGES = [
-    "Welcome {user}! You've entered the world of anime! 🌸",
-    "Konichiwa {user}! Ready for some anime adventures? ✨",
-    "Welcome {user}! May your stay be as exciting as a shonen battle! ⚔️",
-    "Yōkoso {user}! The anime realm welcomes you! 🎌",
-    "Welcome {user}! Let the anime journey begin! 🎮"
-]
+from config import config
 
 # Set up logging
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format=config.LOG_FORMAT,
+    level=getattr(logging, config.LOG_LEVEL)
 )
 logger = logging.getLogger(__name__)
 
@@ -71,8 +54,8 @@ Let's keep this community awesome! ✨
 🎌 *Anime Guardian Bot - Help* 🎌
 
 *Admin Commands:*
-/warn @user - Warn a user (3 warnings = auto-ban)
-/mute @user - Mute a user for 1 hour
+/warn @user - Warn a user ({max_warnings} warnings = auto-ban)
+/mute @user - Mute a user for {mute_duration} hour
 /unmute @user - Unmute a user
 /ban @user - Ban a user from the group
 /kick @user - Kick a user from the group
@@ -89,42 +72,29 @@ Let's keep this community awesome! ✨
 • Anti-spam protection
 • Warning system
 • Anime-themed responses
-        """
+        """.format(
+            max_warnings=config.MAX_WARNINGS,
+            mute_duration=config.MUTE_DURATION_HOURS
+        )
         await update.message.reply_text(help_text, parse_mode='HTML')
     
     async def send_quote(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Send a random anime quote."""
-        quote = random.choice(ANIME_QUOTES)
+        quote = random.choice(config.ANIME_QUOTES)
         await update.message.reply_text(f"💫 *Anime Quote of the Moment:*\n\n{quote}", parse_mode='HTML')
     
     async def show_rules(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Show group rules."""
-        rules_text = """
-📜 *Anime Community Rules* 📜
-
-1. 🤝 *Be Respectful* - Treat everyone with respect
-2. 🎭 *Stay On Topic* - Keep discussions anime-related
-3. 🚫 *No Spam* - Don't flood the chat
-4. 📛 *No NSFW* - Keep content safe for work
-5. 🔗 *No Unsolicited Links* - Ask before posting links
-6. 👥 *No Harassment* - Bullying won't be tolerated
-7. 🎨 *Credit Artists* - Always credit fan art creators
-
-*Violations may result in warnings, mutes, or bans.*
-        """
-        await update.message.reply_text(rules_text, parse_mode='HTML')
+        await update.message.reply_text(config.GROUP_RULES, parse_mode='HTML')
     
     async def welcome_new_member(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Welcome new members with anime-themed message."""
         for member in update.message.new_chat_members:
             if member.id == context.bot.id:
                 # Bot was added to group
-                await update.message.reply_text(
-                    "Arigatou for adding me! I'll protect this anime community! 🌸\n"
-                    "Use /help to see my commands!"
-                )
+                await update.message.reply_text(config.RESPONSES["welcome_bot"])
             else:
-                welcome_msg = random.choice(ANIME_WELCOME_MESSAGES).format(
+                welcome_msg = random.choice(config.ANIME_WELCOME_MESSAGES).format(
                     user=member.mention_html()
                 )
                 await update.message.reply_text(welcome_msg, parse_mode='HTML')
@@ -132,16 +102,18 @@ Let's keep this community awesome! ✨
     async def warn_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Warn a user."""
         if not await self._is_admin(update, context):
-            await update.message.reply_text("❌ You need to be an admin to use this command!")
+            await update.message.reply_text(config.RESPONSES["no_permission"])
             return
         
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user to warn!\nUsage: /warn @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/warn @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         user_id = target_user.id
@@ -159,38 +131,43 @@ Let's keep this community awesome! ✨
 ⚠️ *Warning Issued* ⚠️
 
 User: {target_user.mention_html()}
-Warnings: {warning_count}/3
+Warnings: {warning_count}/{config.MAX_WARNINGS}
 Issued by: {update.effective_user.mention_html()}
 
-*Next step:* {f"Ban at 3 warnings" if warning_count < 3 else "BAN IMMINENT!"}
+*Next step:* {f"Ban at {config.MAX_WARNINGS} warnings" if warning_count < config.MAX_WARNINGS else "BAN IMMINENT!"}
         """
         
         await update.message.reply_text(warning_text, parse_mode='HTML')
         
-        # Auto-ban at 3 warnings
-        if warning_count >= 3:
-            await self.ban_user_manual(update, context, target_user, "Automatically banned for reaching 3 warnings")
+        # Auto-ban at max warnings
+        if warning_count >= config.MAX_WARNINGS:
+            await self.ban_user_manual(
+                update, context, target_user, 
+                f"Automatically banned for reaching {config.MAX_WARNINGS} warnings"
+            )
             # Clear warnings after ban
             if user_id in self.warned_users:
                 del self.warned_users[user_id]
     
     async def mute_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Mute a user for 1 hour."""
+        """Mute a user."""
         if not await self._is_admin(update, context):
-            await update.message.reply_text("❌ You need to be an admin to use this command!")
+            await update.message.reply_text(config.RESPONSES["no_permission"])
             return
         
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user to mute!\nUsage: /mute @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/mute @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         user_id = target_user.id
-        mute_duration = timedelta(hours=1)
+        mute_duration = timedelta(hours=config.MUTE_DURATION_HOURS)
         unmute_time = datetime.now() + mute_duration
         
         # Set permissions to restrict sending messages
@@ -215,28 +192,32 @@ Issued by: {update.effective_user.mention_html()}
 🔇 *User Muted* 🔇
 
 User: {target_user.mention_html()}
-Duration: 1 hour
+Duration: {config.MUTE_DURATION_HOURS} hour(s)
 Muted by: {update.effective_user.mention_html()}
 Unmute at: {unmute_time.strftime('%Y-%m-%d %H:%M:%S')}
             """
             await update.message.reply_text(mute_text, parse_mode='HTML')
             
         except Exception as e:
-            await update.message.reply_text(f"❌ Failed to mute user: {str(e)}")
+            await update.message.reply_text(
+                config.RESPONSES["command_failed"].format(error=str(e))
+            )
     
     async def unmute_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Unmute a user."""
         if not await self._is_admin(update, context):
-            await update.message.reply_text("❌ You need to be an admin to use this command!")
+            await update.message.reply_text(config.RESPONSES["no_permission"])
             return
         
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user to unmute!\nUsage: /unmute @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/unmute @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         user_id = target_user.id
@@ -265,21 +246,25 @@ Unmute at: {unmute_time.strftime('%Y-%m-%d %H:%M:%S')}
             )
             
         except Exception as e:
-            await update.message.reply_text(f"❌ Failed to unmute user: {str(e)}")
+            await update.message.reply_text(
+                config.RESPONSES["command_failed"].format(error=str(e))
+            )
     
     async def ban_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Ban a user from the group."""
         if not await self._is_admin(update, context):
-            await update.message.reply_text("❌ You need to be an admin to use this command!")
+            await update.message.reply_text(config.RESPONSES["no_permission"])
             return
         
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user to ban!\nUsage: /ban @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/ban @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         await self.ban_user_manual(update, context, target_user, "Banned by admin")
@@ -303,21 +288,25 @@ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             await update.message.reply_text(ban_text, parse_mode='HTML')
             
         except Exception as e:
-            await update.message.reply_text(f"❌ Failed to ban user: {str(e)}")
+            await update.message.reply_text(
+                config.RESPONSES["command_failed"].format(error=str(e))
+            )
     
     async def kick_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Kick a user from the group."""
         if not await self._is_admin(update, context):
-            await update.message.reply_text("❌ You need to be an admin to use this command!")
+            await update.message.reply_text(config.RESPONSES["no_permission"])
             return
         
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user to kick!\nUsage: /kick @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/kick @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         try:
@@ -333,17 +322,21 @@ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             )
             
         except Exception as e:
-            await update.message.reply_text(f"❌ Failed to kick user: {str(e)}")
+            await update.message.reply_text(
+                config.RESPONSES["command_failed"].format(error=str(e))
+            )
     
     async def check_warnings(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Check warnings for a user."""
         if not context.args:
-            await update.message.reply_text("❌ Please mention a user!\nUsage: /warnings @username")
+            await update.message.reply_text(
+                config.RESPONSES["no_user_mentioned"].format(usage="/warnings @username")
+            )
             return
         
         target_user = await self._get_mentioned_user(update, context)
         if not target_user:
-            await update.message.reply_text("❌ Could not find the mentioned user!")
+            await update.message.reply_text(config.RESPONSES["user_not_found"])
             return
         
         user_id = target_user.id
@@ -354,7 +347,8 @@ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 User: {target_user.mention_html()}
 Total Warnings: {warning_count}
-Status: {"⚠️ Close to ban!" if warning_count >= 2 else "✅ Good standing"}
+Status: {"⚠️ Close to ban!" if warning_count >= config.MAX_WARNINGS - 1 else "✅ Good standing"}
+Max Warnings: {config.MAX_WARNINGS}
         """
         await update.message.reply_text(warnings_text, parse_mode='HTML')
     
@@ -366,10 +360,10 @@ Status: {"⚠️ Close to ban!" if warning_count >= 2 else "✅ Good standing"}
         # Check if user is sending messages too quickly
         if user_id in self.last_message:
             time_diff = (current_time - self.last_message[user_id]).total_seconds()
-            if time_diff < 2:  # Less than 2 seconds between messages
+            if time_diff < config.ANTI_SPAM_COOLDOWN:
                 # Warn user about spam
                 await update.message.reply_text(
-                    f"{update.effective_user.mention_html()} please don't spam! 🚫",
+                    config.RESPONSES["spam_warning"].format(user=update.effective_user.mention_html()),
                     parse_mode='HTML'
                 )
                 return
@@ -381,7 +375,7 @@ Status: {"⚠️ Close to ban!" if warning_count >= 2 else "✅ Good standing"}
         user_id = update.effective_user.id
         
         # Check if user is in admin list
-        if user_id in ADMIN_IDS:
+        if user_id in config.ADMIN_IDS:
             return True
         
         # Check if user is admin in the group
@@ -415,11 +409,11 @@ Status: {"⚠️ Close to ban!" if warning_count >= 2 else "✅ Good standing"}
         """Clean up old warnings and mutes."""
         current_time = datetime.now()
         
-        # Clean old warnings (older than 24 hours)
+        # Clean old warnings (older than configured hours)
         for user_id in list(self.warned_users.keys()):
             self.warned_users[user_id] = [
                 warn_time for warn_time in self.warned_users[user_id]
-                if (current_time - warn_time) < timedelta(hours=24)
+                if (current_time - warn_time) < timedelta(hours=config.WARNING_EXPIRE_HOURS)
             ]
             if not self.warned_users[user_id]:
                 del self.warned_users[user_id]
@@ -432,7 +426,7 @@ Status: {"⚠️ Close to ban!" if warning_count >= 2 else "✅ Good standing"}
 def main():
     """Start the bot."""
     # Create the Application
-    application = Application.builder().token(BOT_TOKEN).build()
+    application = Application.builder().token(config.BOT_TOKEN).build()
     
     manager = AnimeGroupManager()
     
@@ -461,7 +455,7 @@ def main():
     ))
     
     # Start the Bot
-    print("🌸 Anime Guardian Bot is running...")
+    logger.info("🌸 Anime Guardian Bot is running...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
