@@ -58,7 +58,7 @@ class Config:
         "naruto": {
             "name": "Naruto Uzumaki",
             "series": "Naruto",
-            "image": "https://i.imgur.com/naruto_image.jpg",
+            "image": "https://i.ibb.co/d0LTPTyq/image.jpg",
             "quote": "I'm not gonna run away, I never go back on my word!",
             "description": "A shinobi of Konohagakure's Uzumaki clan who dreams of becoming Hokage."
         },
