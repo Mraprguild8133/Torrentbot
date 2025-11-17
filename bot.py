@@ -13,8 +13,8 @@ from telegram.ext import (
 
 # === CONFIGURATION ===
 class Config:
-    BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
-    ADMIN_IDS = [123456789]
+    BOT_TOKEN = "8326289617:AAGl1Lu0r3-HAgfVQHNTR--n-3X1C5v_51k"
+    ADMIN_IDS = [6300568870]
     DATABASE_NAME = "anime_bot.db"
     MAX_WARNINGS = 3
     MUTE_DURATION_HOURS = 1
