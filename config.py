@@ -20,9 +20,8 @@ class Config:
     ANTI_SPAM_COOLDOWN = 2  # seconds
     
     # Welcome message settings
-    WELCOME_IMAGE_URLS = [
-        "https://i.ibb.co/7tw8p570/image.jpg",
-    ]
+    WELCOME_IMAGE_URLS = "https://i.ibb.co/7tw8p570/image.jpg"
+    
     ENABLE_WELCOME_IMAGE = False
     WELCOME_IMAGE_CAPTION = True
     
